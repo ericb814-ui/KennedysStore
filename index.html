@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Kennedy's Store</title>
+
+<style>
+
+    body {
+
+        font-family: Arial, sans-serif;
+
+        background: #f4f0ff;
+
+        margin: 0;
+
+        padding: 30px;
+
+        text-align: center;
+
+    }
+
+    h1 {
+
+        font-size: 50px;
+
+        margin: 10px;
+
+    }
+
+    .subtitle {
+
+        font-size: 22px;
+
+        margin-bottom: 25px;
+
+    }
+
+    .scanner-box {
+
+        background: white;
+
+        padding: 25px;
+
+        border-radius: 20px;
+
+        max-width: 700px;
+
+        margin: auto;
+
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    }
+
+    #barcode {
+
+        width: 80%;
+
+        padding: 18px;
+
+        font-size: 24px;
+
+        text-align: center;
+
+        border: 3px solid #777;
+
+        border-radius: 12px;
+
+    }
+
+    .cart {
+
+        background: white;
+
+        max-width: 700px;
+
+        margin: 30px auto;
+
+        padding: 25px;
+
+        border-radius: 20px;
+
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    }
+
+    .cart-item {
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        font-size: 22px;
+
+        padding: 14px;
+
+        border-bottom: 1px solid #ddd;
+
+    }
+
+    .remove {
+
+        font-size: 16px;
+
+        padding: 6px 10px;
+
+        margin-left: 10px;
+
+        border-radius: 8px;
+
+        border: none;
+
+        cursor: pointer;
+
+    }
+
+    .total {
+
+        font-size: 38px;
+
+        font-weight: bold;
+
+        margin: 25px;
+
+    }
+
+    button {
+
+        font-size: 22px;
+
+        padding: 15px 30px;
+
+        border: none;
+
+        border-radius: 12px;
+
+        cursor: pointer;
+
+        margin: 5px;
+
+    }
+
+    .checkout {
+
+        font-size: 28px;
+
+        padding: 20px 45px;
+
+    }
+
+    .clear {
+
+        background: #ddd;
+
+    }
+
+    #message {
+
+        font-size: 20px;
+
+        margin-top: 15px;
+
+        min-height: 25px;
+
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<h1> Kennedy's Store</h1>
+
+<div class="subtitle">
+
+    Welcome! Scan an item to add it to the cart.
+
+</div>
+
+<div class="scanner-box">
+
+    <input
+
+        id="barcode"
+
+        type="text"
+
+        placeholder="Scan barcode here"
+
+        autofocus
+
+        autocomplete="off"
+
+    >
+
+    <div id="message"></div>
+
+</div>
+
+<div class="cart">
+
+    <h2>Shopping Cart</h2>
+
+    <div id="cartItems">
+
+        <p>Your cart is empty.</p>
+
+    </div>
+
+    <div class="total">
+
+        TOTAL: $<span id="total">0.00</span>
+
+    </div>
+
+    <button class="checkout" onclick="checkout()">
+
+        CHECK OUT
+
+    </button>
+
+    <button class="clear" onclick="clearCart()">
+
+        Clear Cart
+
+    </button>
+
+</div>
+
+<script>
+
+/*
+
+====================================================
+
+KENNEDY'S STORE PRODUCTS
+
+====================================================
+
+Add your products here.
+
+The number in quotes is the barcode.
+
+"name" is what Kennedy will see.
+
+"price" is the price.
+
+Example:
+
+"123456789012": {
+
+    name: "Teddy Bear",
+
+    price: 5.00
+
+}
+
+====================================================
+
+*/
+
+const products = {
+
+    "012345678905": {
+
+        name: "Apple",
+
+        price: 1.00
+
+    },
+
+    "036000291452": {
+
+        name: "Cookies",
+
+        price: 1.75
+
+    },
+
+    "049000028904": {
+
+        name: "Milk",
+
+        price: 2.50
+
+    },
+
+    "123456789012": {
+
+        name: "Teddy Bear",
+
+        price: 5.00
+
+    },
+
+    "987654321098": {
+
+        name: "Toy Car",
+
+        price: 4.00
+
+    }
+
+};
+
+/*
+
+====================================================
+
+DO NOT CHANGE ANYTHING BELOW HERE
+
+====================================================
+
+*/
+
+let cart = [];
+
+const barcodeInput = document.getElementById("barcode");
+
+const message = document.getElementById("message");
+
+barcodeInput.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        const barcode = barcodeInput.value.trim();
+
+        if (barcode !== "") {
+
+            addProduct(barcode);
+
+        }
+
+        barcodeInput.value = "";
+
+    }
+
+});
+
+function addProduct(barcode) {
+
+    const product = products[barcode];
+
+    if (!product) {
+
+        message.innerText =
+
+            “We don't have that product yet!";
+
+        message.style.color = "red";
+
+        barcodeInput.focus();
+
+        return;
+
+    }
+
+    cart.push(product);
+
+    message.innerText =
+
+        "Added " + product.name;
+
+    message.style.color = "green";
+
+    displayCart();
+
+    barcodeInput.focus();
+
+}
+
+function displayCart() {
+
+    const cartItems = document.getElementById("cartItems");
+
+    cartItems.innerHTML = "";
+
+    if (cart.length === 0) {
+
+        cartItems.innerHTML =
+
+            "<p>Your cart is empty.</p>";
+
+        document.getElementById("total").innerText =
+
+            "0.00";
+
+        return;
+
+    }
+
+    let total = 0;
+
+    cart.forEach(function(product, index) {
+
+        total += product.price;
+
+        const row = document.createElement("div");
+
+        row.className = "cart-item";
+
+        row.innerHTML = `
+
+            <span>
+
+                ${product.name}
+
+                — $${product.price.toFixed(2)}
+
+            </span>
+
+            <button
+
+                class="remove"
+
+                onclick="removeItem(${index})">
+
+                
+
+            </button>
+
+        `;
+
+        cartItems.appendChild(row);
+
+    });
+
+    document.getElementById("total").innerText =
+
+        total.toFixed(2);
+
+}
+
+function removeItem(index) {
+
+    cart.splice(index, 1);
+
+    displayCart();
+
+    barcodeInput.focus();
+
+}
+
+function clearCart() {
+
+    cart = [];
+
+    displayCart();
+
+    message.innerText = "";
+
+    barcodeInput.focus();
+
+}
+
+function checkout() {
+
+    if (cart.length === 0) {
+
+        alert("The cart is empty!");
+
+        barcodeInput.focus();
+
+        return;
+
+    }
+
+    let total = 0;
+
+    cart.forEach(function(product) {
+
+        total += product.price;
+
+    });
+
+    alert(
+
+        "THANK YOU FOR SHOPPING AT KENNEDY'S STORE!\
+
+\n\n" +
+
+        "Your total is $" +
+
+        total.toFixed(2) +
+
+        "\n\n" +
+
+        "Have a great day!"
+
+    );
+
+    clearCart();
+
+}
+
+</script>
+
+</body>
+
+</html>
